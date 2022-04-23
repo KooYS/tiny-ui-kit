@@ -68,8 +68,12 @@ typings/
 # Yarn Integrity file
 .yarn-integrity
 
+
+storybook-static/
+
 # dotenv environment variables file
 .env
+.env.*
 .env.test
 
 # parcel-bundler cache (https://parceljs.org/)
