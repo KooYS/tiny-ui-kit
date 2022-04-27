@@ -1,7 +1,5 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import styled from '@emotion/styled/macro';
 import Carousel from './Carousel';
-import { useCallback } from 'react';
 export default {
   title: 'UI/Carousel',
   component: Carousel,
