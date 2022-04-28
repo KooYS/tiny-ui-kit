@@ -1,12 +1,15 @@
-import { useEffect } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import React from 'react';
 import styled from '@emotion/styled/macro';
-import { css } from '@emotion/react';
 import { FaAngleLeft, FaAngleRight } from 'react-icons/fa';
+import useCarouselDrag from '../hooks/useCarouselDrag';
 
 interface CarouselProps {
   arrow?: boolean;
   images?: string[];
+  autoplay?: boolean;
+  delay?: number;
+  touchable?: boolean;
   realIndex?: (index: number) => void;
 }
 
@@ -21,13 +24,20 @@ const CarouselList = styled.ul`
   padding: 0;
   overflow: hidden;
 `;
-const CarouselItem = styled.li`
+const CarouselItem = styled.li<{ currentIndex: number }>`
   width: 100%;
   flex: 1 0 100%;
+  touch-action: none;
   & img {
     width: 100%;
     aspect-ratio: 16/9;
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
   }
+  transform: translate(${({ currentIndex }) => `${currentIndex * -100}%`}, 0);
+  transition: 200ms ease;
 `;
 const CarouselArrowBtn = styled.button<{ position: 'left' | 'right' }>`
   position: absolute;
@@ -41,6 +51,7 @@ const CarouselArrowBtn = styled.button<{ position: 'left' | 'right' }>`
   border: 0;
   font-size: 40px;
   color: #ffffff;
+  z-index: 1;
 `;
 const CarouselNav = styled.ul`
   position: absolute;
@@ -55,58 +66,120 @@ const CarouselNav = styled.ul`
 const CarouselNavItem = styled.li``;
 const CarouselNavBtn = styled.button<{ isActive?: boolean }>`
   width: 30px;
-  height: 6px;
+  height: 30px;
   border: 0;
-  background-color: white;
-  opacity: ${({ isActive }) => (isActive ? 0.5 : 0.8)};
+  margin: 0;
+  padding: 0;
+  background-color: transparent;
+  &::after {
+    content: '';
+    background-color: white;
+    opacity: ${({ isActive }) => (isActive ? 0.8 : 0.4)};
+    display: block;
+    width: 30px;
+    height: 5px;
+  }
 `;
 
-const Carousel: React.FC<CarouselProps> = ({ images, realIndex }) => {
-  const number = React.useRef<number>(0);
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (realIndex) {
-        realIndex(number.current);
-        number.current++;
-      }
-    }, 2000);
+const Carousel: React.FC<CarouselProps> = ({
+  images,
+  realIndex,
+  autoplay = false,
+  delay = 1000,
+  touchable = true,
+  arrow = true,
+}) => {
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const [currentAutoplay, setCurrentAutoplay] = useState<boolean>(autoplay);
 
-    return () => clearInterval(interval);
-  }, [realIndex]);
+  const handleRightArrowClick = () => {
+    if (images) setCurrentIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const handleLeftArrowClick = () => {
+    if (images)
+      setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const { handleTouchEnd, handleTouchMove, handleTouchStart } = useCarouselDrag(
+    {
+      leftAction: handleLeftArrowClick,
+      rightAction: handleRightArrowClick,
+      disabled: touchable,
+    }
+  );
+
+  useEffect(() => {
+    if (currentAutoplay) {
+      const interval = setInterval(() => {
+        handleRightArrowClick();
+      }, delay);
+      return () => {
+        clearInterval(interval);
+      };
+    }
+  }, [currentAutoplay]);
+
+  const handleNavBtnClick = (index: number) => {
+    if (images) setCurrentIndex(index);
+  };
+
+  useLayoutEffect(() => {
+    if (realIndex) realIndex(currentIndex);
+  }, [currentIndex]);
 
   return (
-    <Container>
-      <CarouselArrowBtn position="left">
-        <FaAngleLeft />
-      </CarouselArrowBtn>
+    <Container
+      onMouseLeave={(e) => {
+        setCurrentAutoplay(autoplay);
+        handleTouchEnd(e.pageX, e.pageY);
+      }}
+      onTouchMove={handleTouchMove}
+      onMouseMove={handleTouchMove}
+      onMouseOver={() => setCurrentAutoplay(false)}
+      onTouchStart={(e) => {
+        handleTouchStart(
+          e.changedTouches[0].clientX,
+          e.changedTouches[0].clientY
+        );
+        setCurrentAutoplay(false);
+      }}
+      onTouchEnd={(e) => {
+        handleTouchEnd(
+          e.changedTouches[0].clientX,
+          e.changedTouches[0].clientY
+        );
+        setCurrentAutoplay(autoplay);
+      }}
+      onMouseDown={(e) => handleTouchStart(e.pageX, e.pageY)}
+      onMouseUp={(e) => handleTouchEnd(e.pageX, e.pageY)}>
+      {arrow && (
+        <CarouselArrowBtn onClick={handleLeftArrowClick} position="left">
+          <FaAngleLeft />
+        </CarouselArrowBtn>
+      )}
       <CarouselList>
-        {images?.map((image) => {
+        {images?.map((image, index) => {
           return (
-            <CarouselItem>
-              <img src={image} />{' '}
+            <CarouselItem key={index} currentIndex={currentIndex}>
+              <img src={image} />
             </CarouselItem>
           );
         })}
       </CarouselList>
-      <CarouselArrowBtn position="right">
-        <FaAngleRight />
-      </CarouselArrowBtn>
+      {arrow && (
+        <CarouselArrowBtn onClick={handleRightArrowClick} position="right">
+          <FaAngleRight />
+        </CarouselArrowBtn>
+      )}
       <CarouselNav>
-        <CarouselNavItem>
-          <CarouselNavBtn isActive={false}></CarouselNavBtn>
-        </CarouselNavItem>
-        <CarouselNavItem>
-          <CarouselNavBtn isActive={true}></CarouselNavBtn>
-        </CarouselNavItem>
-        <CarouselNavItem>
-          <CarouselNavBtn isActive={false}></CarouselNavBtn>
-        </CarouselNavItem>
-        <CarouselNavItem>
-          <CarouselNavBtn isActive={false}></CarouselNavBtn>
-        </CarouselNavItem>
-        <CarouselNavItem>
-          <CarouselNavBtn isActive={false}></CarouselNavBtn>
-        </CarouselNavItem>
+        {images?.map((_, index: number) => (
+          <CarouselNavItem key={index}>
+            <CarouselNavBtn
+              onClick={() => handleNavBtnClick(index)}
+              isActive={index === currentIndex}></CarouselNavBtn>
+          </CarouselNavItem>
+        ))}
       </CarouselNav>
     </Container>
   );

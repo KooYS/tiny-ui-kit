@@ -19,7 +19,10 @@ const images = [
 export const Default = Template.bind({});
 Default.args = {
   realIndex: (index) => {
-    console.log(index);
+    console.log('get current index: ', index);
   },
   images: images,
+  autoplay: true,
+  delay: 3000,
+  touchable: true,
 };
