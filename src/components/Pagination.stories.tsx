@@ -11,4 +11,11 @@ const Template: ComponentStory<typeof Pagination> = (args) => {
 };
 
 export const Default = Template.bind({});
-Default.args = {};
+Default.args = {
+  count: 100,
+  hidePrevButton: false,
+  hideNextButton: false,
+  defaultPage: 1,
+  siblingCount: 2,
+  boundaryCount: 2,
+};
