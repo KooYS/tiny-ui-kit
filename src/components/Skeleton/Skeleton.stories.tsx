@@ -51,9 +51,9 @@ const ExampleCardContent = styled.div`
 export const ExampleCard: ComponentStory<typeof Skeleton> = () => {
   return (
     <ExampleCardContainer>
-      {[...Array(9)].map(() => {
+      {[...Array(9)].map((_, index) => {
         return (
-          <ExampleStyledCard>
+          <ExampleStyledCard key={index}>
             <ExampleCardHeader>
               <Skeleton circle={true} width={40} height={40} />
               <Skeleton rounded={true} width={100} height={20} />

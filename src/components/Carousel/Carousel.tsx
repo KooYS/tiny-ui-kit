@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useState } from 'react';
 import React from 'react';
 import styled from '@emotion/styled/macro';
 import { FaAngleLeft, FaAngleRight } from 'react-icons/fa';
-import useCarouselDrag from '../hooks/useCarouselDrag';
+import useCarouselDrag from '../../hooks/useCarouselDrag';
 
 interface CarouselProps {
   arrow?: boolean;
