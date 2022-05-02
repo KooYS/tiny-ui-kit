@@ -1,9 +1,7 @@
 import { ComponentStory, ComponentMeta } from '@storybook/react';
-import {
-  InfiniteScrollUsingPackage,
-  InfiniteScrollUsingScrollEvent,
-  InfiniteScrollUsingIntersectionObserver,
-} from './InfiniteScroll';
+import InfiniteScrollUsingPackage from './InfiniteScrollUsingPackage';
+import InfiniteScrollUsingScrollEvent from './InfiniteScrollUsingScrollEvent';
+import InfiniteScrollUsingIntersectionObserver from './InfiniteScrollUsingIntersectionObserver';
 
 export default {
   title: 'UI/InfiniteScroll',
@@ -33,9 +31,6 @@ const InfiniteScrollUsingIntersectionObserverTemplate: ComponentStory<
 };
 
 export const ReactInfiniteScroll = InfiniteScrollUsingPackageTemplate.bind({});
-ReactInfiniteScroll.args = {};
-export const ScrollEvent = InfiniteScrollUsingScrollEventTemplate.bind({});
-ScrollEvent.args = {};
 export const IntersectionObserver =
   InfiniteScrollUsingIntersectionObserverTemplate.bind({});
-IntersectionObserver.args = {};
+export const ScrollEvent = InfiniteScrollUsingScrollEventTemplate.bind({});
